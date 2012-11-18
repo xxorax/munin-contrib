@@ -29,9 +29,9 @@ function parseUsers ()
 {
     if [[ $EXCLUDESYSTEMUSERS && $EXCLUDESYSTEMUSERS -eq 1 ]]; then
         local l=$(grep "^UID_MIN" /etc/login.defs)
-        USERS=$(awk -F':' -v "limit=${l##UID_MIN}" '{ if ( $3 >= limit ) print $1}' /etc/passwd)
+        USERS=$(awk -F':' -v "limit=${l##UID_MIN}" '{ if ( $3 >= limit ) print $1}' /etc/passwd | sort)
     else
-        USERS=$(awk -F':' '{ print $1}' /etc/passwd)
+        USERS=$(awk -F':' '{ print $1}' /etc/passwd | sort)
     fi
     
     if [ -n "$USERSEXCLUDED" ]; then
@@ -46,7 +46,7 @@ if [ "$1" = "config" ]; then
 	echo "graph_args --base 1000 -r --lower-limit 0"
 	echo "graph_title CPU usage, by user"
 	echo "graph_category system"
-	echo "graph_info This graph shows CPU usage, for monitored users."
+	echo "graph_info This graph shows CPU usage, for all users excluding some one."
 	echo "graph_vlabel %"
 	echo "graph_scale no"
 	echo "graph_period second"
@@ -84,5 +84,13 @@ ps -e -o "%C%U" | \
 				} else
 					others_sum += CPU_USER[user]
 			}
+			split(USERS, USERSA, /\s+/);
+			for (user in USERSA) {
+			    if (USERSA[user] in CPU_USER) {
+			       _user=USERSA[user]
+                    gsub(/[-.]/,"_", _user);
+                    print _user".value", 0
+                }
+            }
 		print "others.value", others_sum;
 	}'
