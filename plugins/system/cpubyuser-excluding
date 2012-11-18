@@ -44,7 +44,7 @@ function parseUsers ()
 
 if [ "$1" = "config" ]; then
 	echo "graph_args --base 1000 -r --lower-limit 0"
-	echo "graph_title CPU usage, by user"
+	echo "graph_title CPU usage, by user (excluding)"
 	echo "graph_category system"
 	echo "graph_info This graph shows CPU usage, for all users excluding some one."
 	echo "graph_vlabel %"
@@ -86,8 +86,8 @@ ps -e -o "%C%U" | \
 			}
 			split(USERS, USERSA, /\s+/);
 			for (user in USERSA) {
-			    if (USERSA[user] in CPU_USER) {
-			       _user=USERSA[user]
+			    if (USERSA[user] in CPU_USER == 0) {
+			        _user=USERSA[user]
                     gsub(/[-.]/,"_", _user);
                     print _user".value", 0
                 }
