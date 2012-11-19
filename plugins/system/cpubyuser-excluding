@@ -85,7 +85,7 @@ ps -e -o "%C%U" | \
 				} else
 					others_sum += CPU_USER[user]
 			}
-			split(USERS, USERSA, /\s+/);
+			split(USERS, USERSA, / +/);
 			for (user in USERSA) {
 				if (USERSA[user] in CPU_USER == 0) {
 					_user=USERSA[user]
